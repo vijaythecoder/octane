@@ -8,6 +8,9 @@ use Laravel\Octane\Events\TaskReceived;
 use Laravel\Octane\Events\TaskTerminated;
 use Laravel\Octane\Events\TickReceived;
 use Laravel\Octane\Events\TickTerminated;
+use Laravel\Octane\Events\WebSocketDisconnect;
+use Laravel\Octane\Events\WebSocketMessage;
+use Laravel\Octane\Events\WebSocketOpen;
 use Laravel\Octane\Events\WorkerErrorOccurred;
 use Laravel\Octane\Events\WorkerStarting;
 use Laravel\Octane\Events\WorkerStopping;
@@ -39,6 +42,20 @@ return [
     */
 
     'server' => env('OCTANE_SERVER', 'roadrunner'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Websockets
+    |--------------------------------------------------------------------------
+    |
+    | When this configuration value is set to "true", Octane will inform the
+    | framework that all absolute links must be generated using the HTTPS
+    | protocol. Otherwise your links may be generated using plain HTTP.
+    |
+    */
+    'swoole' => [
+        'enable_web_socket' => env('OCTANE_ENABLE_WEB_SOCKETS', true),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -116,6 +133,18 @@ return [
 
         WorkerStopping::class => [
             CloseMonologHandlers::class,
+        ],
+
+        WebSocketOpen::class => [
+            //
+        ],
+
+        WebSocketMessage::class => [
+            //
+        ],
+
+        WebSocketDisconnect::class => [
+            //
         ],
     ],
 

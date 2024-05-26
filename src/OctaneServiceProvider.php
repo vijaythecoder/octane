@@ -87,8 +87,12 @@ class OctaneServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(DispatchesCoroutines::class, function ($app) {
-            return class_exists('Swoole\Http\Server')
-                        ? new SwooleCoroutineDispatcher($app->bound('Swoole\Http\Server'))
+            $serverClass = config('octane.swoole.enable_web_socket', false)
+                ? \Swoole\Websocket\Server::class
+                : \Swoole\Http\Server::class;
+
+            return class_exists($serverClass)
+                        ? new SwooleCoroutineDispatcher($app->bound($serverClass))
                         : $app->make(SequentialCoroutineDispatcher::class);
         });
     }

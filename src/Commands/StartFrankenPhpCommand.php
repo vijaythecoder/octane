@@ -99,7 +99,7 @@ class StartFrankenPhpCommand extends Command implements SignalableCommandInterfa
             'CADDY_SERVER_ADMIN_PORT' => $this->adminPort(),
             'CADDY_SERVER_LOG_LEVEL' => $this->option('log-level') ?: (app()->environment('local') ? 'INFO' : 'WARN'),
             'CADDY_SERVER_LOGGER' => 'json',
-            'CADDY_SERVER_SERVER_NAME' => $serverName,
+            'CADDY_SERVER_SERVER_NAME' => $this->uri(),
             'CADDY_SERVER_WORKER_COUNT' => $this->workerCount() ?: '',
             'CADDY_SERVER_EXTRA_DIRECTIVES' => $this->buildMercureConfig(),
         ]));
@@ -327,10 +327,10 @@ class StartFrankenPhpCommand extends Command implements SignalableCommandInterfa
     /**
      * {@inheritDoc}
      */
-    protected function writeServerRunningMessage()
+    protected function writeServerRunningMessage(string $type)
     {
         if ($this->option('log-level') === null) {
-            $this->baseWriteServerRunningMessage();
+            $this->baseWriteServerRunningMessage($type);
         }
     }
 
