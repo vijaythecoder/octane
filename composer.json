@@ -1,5 +1,5 @@
 {
-    "name": "laravel/octane",
+    "name": "vijaythecoder/octane",
     "description": "Supercharge your Laravel application's performance.",
     "keywords": ["laravel", "octane", "roadrunner", "swoole", "frankenphp"],
     "license": "MIT",

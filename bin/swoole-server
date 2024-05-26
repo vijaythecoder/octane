@@ -4,12 +4,17 @@
 use Laravel\Octane\RequestContext;
 use Laravel\Octane\Swoole\Handlers\OnManagerStart;
 use Laravel\Octane\Swoole\Handlers\OnServerStart;
+use Laravel\Octane\Swoole\Handlers\OnWebSocketClose;
+use Laravel\Octane\Swoole\Handlers\OnWebSocketHandshake;
+use Laravel\Octane\Swoole\Handlers\OnWebSocketMessage;
 use Laravel\Octane\Swoole\Handlers\OnWorkerStart;
 use Laravel\Octane\Swoole\ServerStateFile;
 use Laravel\Octane\Swoole\SwooleExtension;
 use Laravel\Octane\Swoole\WorkerState;
-use Swoole\Http\Server;
-use Swoole\Timer;
+use Swoole\WebSocket\Server;
+use Swoole\WebSocket\Frame;
+use Swoole\Http\Request;
+use Swoole\Http\Response;
 
 ini_set('display_errors', 'stderr');
 
@@ -127,6 +132,44 @@ $server->on('request', function ($request, $response) use ($server, $workerState
     if ($workerState->timerTable) {
         $workerState->timerTable->del($workerState->workerId);
     }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Handle Incoming WebSocket Connections
+|--------------------------------------------------------------------------
+|
+| The following callback will handle all incoming connections.
+|
+*/
+
+$server->on('handshake', fn (Request $request, Response $response) => (new OnWebSocketHandshake(
+    $server, $serverState, $workerState
+))($request, $response));
+/*
+|--------------------------------------------------------------------------
+| Handle Incoming WebSocket Messages
+|--------------------------------------------------------------------------
+|
+| The following callback will handle all incoming messages.
+|
+*/
+
+$server->on('message', function (Server $server, Frame $frame) use ($workerState) {
+    $workerState->worker->handleWebSocketMessage($server, $frame);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Handle Closed WebSocket Connections
+|--------------------------------------------------------------------------
+|
+| The following callback will handle all closed connections.
+|
+*/
+
+$server->on('close', function (Server $server, int $fd) use ($workerState) {
+    $workerState->worker->handleWebSocketDisconnect($server, $fd);
 });
 
 /*

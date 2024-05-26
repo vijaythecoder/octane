@@ -24,7 +24,7 @@ class ConvertSwooleRequestToIlluminateRequest
         $request = new SymfonyRequest(
             $swooleRequest->get ?? [],
             $swooleRequest->post ?? [],
-            [],
+                ['fd' => $swooleRequest->fd],
             $swooleRequest->cookie ?? [],
             $swooleRequest->files ?? [],
             $serverVariables,
