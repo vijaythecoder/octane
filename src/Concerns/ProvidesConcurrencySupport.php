@@ -33,10 +33,14 @@ trait ProvidesConcurrencySupport
      */
     public function tasks()
     {
+        $serverClass = config('octane.swoole.enable_web_socket', false)
+            ? \Swoole\Websocket\Server::class
+            : \Swoole\Http\Server::class;
+
         return match (true) {
             app()->bound(DispatchesTasks::class) => app(DispatchesTasks::class),
-            app()->bound(Server::class) => new SwooleTaskDispatcher,
-            class_exists(Server::class) => (fn (array $serverState) => new SwooleHttpTaskDispatcher(
+            app()->bound($serverClass) => new SwooleTaskDispatcher,
+            class_exists($serverClass) => (fn (array $serverState) => new SwooleHttpTaskDispatcher(
                 $serverState['state']['host'] ?? '127.0.0.1',
                 $serverState['state']['port'] ?? '8000',
                 new SequentialTaskDispatcher
